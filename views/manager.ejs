@@ -1,0 +1,127 @@
+<main class="container mt-4">
+    <h2 class="text-center mb-4">隊伍管理</h2>
+
+    <!-- 新增成員按鈕 -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMemberModal">新增成員</button>
+    </div>
+
+    <!-- 人員列表 -->
+    <table class="table table-striped text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>姓名</th>
+                <th>角色</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>王小明</td>
+                <td>前鋒</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewMemberModal">檢視</button>
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editMemberModal">修改</button>
+                    <button class="btn btn-danger btn-sm">刪除</button>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>張大成</td>
+                <td>守門員</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewMemberModal">檢視</button>
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editMemberModal">修改</button>
+                    <button class="btn btn-danger btn-sm">刪除</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 操作按鈕區域 -->
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <button class="btn btn-primary btn-lg" id="startMatchBtn">比賽開始</button>
+        <button class="btn btn-info btn-lg text-white" id="viewStatsBtn">數據檢視</button>
+    </div>
+</main>
+
+<!-- 新增成員 Modal -->
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMemberModalLabel">新增隊伍成員</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">角色</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-success">新增</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 檢視成員 Modal -->
+<div class="modal fade" id="viewMemberModal" tabindex="-1" aria-labelledby="viewMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewMemberModalLabel">成員詳細資訊</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>姓名：</strong> 王小明</p>
+                <p><strong>角色：</strong> 前鋒</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 修改成員 Modal -->
+<div class="modal fade" id="editMemberModal" tabindex="-1" aria-labelledby="editMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMemberModalLabel">修改隊伍成員</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" value="王小明">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">角色</label>
+                        <input type="text" class="form-control" value="前鋒">
+                    </div>
+                    <button type="submit" class="btn btn-warning">修改</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById("startMatchBtn").addEventListener("click", function() {
+        window.location.href = "/match";  // 跳轉到比賽頁面
+    });
+
+    document.getElementById("viewStatsBtn").addEventListener("click", function() {
+        window.location.href = "/stats";  // 跳轉到數據檢視頁面
+    });
+</script>

@@ -6,9 +6,11 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var aboutRouter = require('./routes/about');
+var managerRouter = require('./routes/manager');
 
 var app = express();
-
+var expressLayouts = require('express-ejs-layouts');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -18,9 +20,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(expressLayouts); 
+app.set('layout', 'layout');
 app.use('/', indexRouter);
+app.use('/about', aboutRouter);
 app.use('/users', usersRouter);
+app.use('/manager', managerRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -30,6 +35,7 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
+  console.log(err.message);
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 

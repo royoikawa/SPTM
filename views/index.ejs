@@ -1,13 +1,21 @@
-<!-- index.ejs -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
-</head>
-<body>
-    <h1>Hello World</h1>
-    <p>This is an EJS page.</p>
-</body>
-</html>
+<section class="text-center">
+
+    <!-- 介紹文字 -->
+    <h1 class="mt-4">歡迎來到我的網站</h1>
+    <p class="lead">已有球隊管理者帳號? 點擊右上角登入鍵</p>
+    
+    <!-- 大圖片 -->
+    <div class="team-section position-relative">
+        <!-- 圖片縮小並保持響應式 -->
+        <img src="/images/konoha_logo.png" alt="中圖片" class="team-img">
+    </div>
+
+    <!-- 搜尋欄 -->
+    <div class="search-box">
+        <form action="/search" method="GET" class="d-flex">
+            <input type="text" name="query" class="form-control" placeholder="輸入關鍵字搜尋...">
+            <button type="submit" class="btn btn-primary ms-2">搜尋</button>
+        </form>
+    </div>
+
+</section>

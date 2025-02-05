@@ -1,8 +1,57 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+.text-center {
+  text-align: center;
 }
 
-a {
-  color: #00B7FF;
+/* 設定大圖片容器 */
+.team-section {
+  position: relative;
+  width: auto;
+  height: 60%; /* 設定圖片容器最大高度 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px; /* 設定圖片下方距離 */
+  overflow: hidden; /* 讓圖片超過容器時隱藏 */
+}
+
+/* 圖片設定，保持比例且不裁切 */
+.team-img {
+  width: 100%;
+  height: auto; /* 高度根據寬度調整 */
+  object-fit: contain; /* 保持比例，讓圖片自動適應容器 */
+  display: block;
+  margin: 0 auto; /* 讓圖片置中 */
+}
+
+/* 搜尋框樣式 */
+.search-box {
+  width: 60%; /* 調整搜尋框的寬度 */
+  background: rgba(255, 255, 255, 0.8); /* 設定半透明背景 */
+  padding: 8px; /* 增加內距 */
+  border-radius: 8px; /* 圓角效果 */
+  margin-top: 20px; /* 讓搜尋框與圖片有間距 */
+  margin-left: auto; /* 讓搜尋框水平置中 */
+  margin-right: auto; /* 讓搜尋框水平置中 */
+}
+
+/* 設定搜尋框內的輸入欄 */
+.search-box input {
+  font-size: 1rem; /* 設定字體大小 */
+  padding: 10px; /* 增加內距 */
+  width: 80%; /* 調整輸入框寬度 */
+}
+
+/* 設定搜尋按鈕 */
+.search-box button {
+  font-size: 1rem; /* 設定字體大小 */
+  padding: 10px;
+  background-color: #007bff; /* 藍色背景 */
+  color: white; /* 白色字體 */
+  border: none;
+  border-radius: 8px; /* 圓角 */
+  cursor: pointer; /* 設定游標為指針 */
+}
+
+.search-box button:hover {
+  background-color: #0056b3; /* 當鼠標懸停時改變背景顏色 */
 }
