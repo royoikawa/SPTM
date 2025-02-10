@@ -1,0 +1,53 @@
+
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+    <div class="row w-100 justify-content-center">
+        <div class="col-md-6 col-lg-4 col-sm-10">
+            <div class="card shadow-lg p-4">
+                <h2 class="text-center mb-4">管理者登入</h2>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="user_name" class="form-label">球隊帳號</label>
+                        <input type="text" class="form-control" id="user_name" name="user_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密碼</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">登入</button>
+                </form>
+                <p id="errorMessage" class="text-danger mt-3 text-center" style="display: none;">帳號或密碼錯誤</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const userName = document.getElementById("user_name").value;
+        const password = document.getElementById("password").value;
+        fetch("/users/getUser", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ user_name: userName,password:password})
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("User not found");
+            }
+        })
+        .then(data => {
+            alert("登入成功，歡迎 " + data.user_name + "!");
+            window.location.href = "/manager"; // 登入成功後跳轉頁面
+        })
+        .catch(error => {
+            document.getElementById("errorMessage").style.display = "block";
+        });
+    });
+</script>
+
