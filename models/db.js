@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'SPTMDB',
+  database: 'sptmdb',
   password: 'wskonoha',
   port: 5432, // PostgreSQL 預設 port
 });
