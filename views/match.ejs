@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比賽數據記錄</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <main class="container mt-4">
+        <h2 class="text-center mb-4">比賽數據記錄</h2>
+
+        <!-- 將 players 資料存入 data 屬性，讓 JavaScript 讀取 -->
+        <div id="playersData" data-players='<%= JSON.stringify(players) %>'></div>
+
+        <table class="table table-striped text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>姓名</th>
+                    <th>角色</th>
+                    <th>背號</th>
+                    <th>詳細數據</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% players.forEach((player, index)=> { %>
+                    <tr>
+                        <td>
+                            <%= player.player_name %>
+                        </td>
+                        <td>
+                            <%= player.role %>
+                        </td>
+                        <td>
+                            <%= player.number %>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm toggle-btn" data-index="<%= index %>">
+                                展開/收起
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="player-stats" id="stats-<%= index %>" style="display: none;">
+                        <td colspan="4">
+                            <h5>技術數據</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>技術</th>
+                                        <th>成功</th>
+                                        <th>有效</th>
+                                        <th>無效</th>
+                                        <th>失誤</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% const skills=["攻擊", "接發球" , "發球" , "防守" , "攔網" , "舉球" ]; %>
+                                        <% skills.forEach(skill=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= skill %>
+                                                </td>
+                                                <% ["成功", "有效" , "無效" , "失誤" ].forEach(type=> { %>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-danger decrement"
+                                                            data-player="<%= index %>" data-skill="<%= skill %>"
+                                                            data-type="<%= type %>">-</button>
+                                                        <span id="stat-<%= index %>-<%= skill %>-<%= type %>">0</span>
+                                                        <button class="btn btn-sm btn-success increment"
+                                                            data-player="<%= index %>" data-skill="<%= skill %>"
+                                                            data-type="<%= type %>">+</button>
+                                                    </td>
+                                                    <% }) %>
+                                            </tr>
+                                            <% }) %>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
+
+        <button class="btn btn-success" id="submitStatsBtn">送出統計資料</button>
+    </main>
+
+    <!-- 彈出視窗 -->
+    <div class="modal fade" id="matchInfoModal" tabindex="-1" aria-labelledby="matchInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">填寫比賽資訊</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="matchInfoForm">
+                        <div class="mb-3">
+                            <label class="form-label">比賽日期</label>
+                            <input type="date" class="form-control" id="matchDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">比賽對手</label>
+                            <input type="text" class="form-control" id="matchOpponent" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">第幾局</label>
+                            <input type="number" class="form-control" id="matchSet" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">確認送出</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const players = JSON.parse(document.getElementById("playersData").dataset.players);
+
+        document.querySelectorAll(".toggle-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                const index = button.getAttribute("data-index");
+                const statsRow = document.getElementById(`stats-${index}`);
+                statsRow.style.display = statsRow.style.display === "none" ? "table-row" : "none";
+            });
+        });
+
+        document.querySelectorAll(".increment").forEach(button => {
+            button.addEventListener("click", () => {
+                const playerIndex = button.getAttribute("data-player");
+                const skill = button.getAttribute("data-skill");
+                const type = button.getAttribute("data-type");
+                const statElement = document.getElementById(`stat-${playerIndex}-${skill}-${type}`);
+                statElement.textContent = parseInt(statElement.textContent) + 1;
+            });
+        });
+
+        document.querySelectorAll(".decrement").forEach(button => {
+            button.addEventListener("click", () => {
+                const playerIndex = button.getAttribute("data-player");
+                const skill = button.getAttribute("data-skill");
+                const type = button.getAttribute("data-type");
+                const statElement = document.getElementById(`stat-${playerIndex}-${skill}-${type}`);
+                const currentValue = parseInt(statElement.textContent);
+                if (currentValue > 0) {
+                    statElement.textContent = currentValue - 1;
+                }
+            });
+        });
+
+        document.getElementById("submitStatsBtn").addEventListener("click", () => {
+            new bootstrap.Modal(document.getElementById("matchInfoModal")).show();
+        });
+
+        document.getElementById("matchInfoForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const matchDate = document.getElementById("matchDate").value;
+            const matchOpponent = document.getElementById("matchOpponent").value;
+            const matchSet = document.getElementById("matchSet").value;
+
+            let matchData = {
+                date: matchDate,
+                opponent: matchOpponent,
+                set: matchSet,
+                stats: []
+            };
+
+            players.forEach((player, index) => {
+                let playerStats = { playerId: player.player_id, stats: {} };
+
+                const skillMapping = {
+                    "攻擊": "attack",
+                    "接發球": "receive",
+                    "發球": "serve",
+                    "防守": "defense",
+                    "攔網": "block",
+                    "舉球": "set"
+                };
+
+                const typeMapping = {
+                    "成功": "success",
+                    "有效": "effective",
+                    "無效": "ineffective",
+                    "失誤": "error"
+                };
+
+                Object.keys(skillMapping).forEach(skill => {
+                    let skillKey = skillMapping[skill]; // 轉換成英文 key
+                    playerStats.stats[skillKey] = {};
+
+                    Object.keys(typeMapping).forEach(type => {
+                        let typeKey = typeMapping[type]; // 轉換成英文 key
+                        playerStats.stats[skillKey][typeKey] = parseInt(document.getElementById(`stat-${index}-${skill}-${type}`).textContent);
+                    });
+                });
+
+                matchData.stats.push(playerStats);
+            });
+
+
+            fetch("/match/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(matchData)
+            })
+                .then(response => response.json())
+                .then(data => alert(data.message))
+                .catch(error => console.error("Error:", error));
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

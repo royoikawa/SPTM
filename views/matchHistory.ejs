@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比賽歷史</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        h2 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr.match-row {
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+
+        tr.match-row:hover {
+            background-color: #e2e6ea;
+        }
+
+        tr.player-row {
+            background-color: #dff0d8;
+        }
+
+        tr.stats-row {
+            background-color: #f2dede;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .btn-toggle {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .btn-toggle:hover {
+            text-decoration: underline;
+        }
+
+        /* 美化按鈕 */
+        .match-detail td {
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        .player-stats td {
+            border-top: 1px solid #dee2e6;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 15px 0;
+            background-color: #007bff;
+            /* 藍色 */
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: #0056b3;
+            /* 深藍色 */
+            transform: scale(1.05);
+        }
+
+        .btn-back:active {
+            background-color: #003d80;
+            transform: scale(0.95);
+        }
+
+
+        /* 動畫效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>比賽歷史</h2>
+    <a href="/manager" class="btn-back">⬅返回管理頁面</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>比賽日期</th>
+                <th>對手</th>
+                <th>局數</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% matches.forEach(match=> { %>
+                <tr class="match-row" data-match-id="<%= match.match_id %>">
+                    <td>
+                        <%= new Date(match.match_date).toISOString().split('T')[0] %>
+                    </td>
+                    <td>
+                        <%= match.opponent %>
+                    </td>
+                    <td>
+                        <%= match.set_number %>
+                    </td>
+                    <td><a href="javascript:void(0);" class="btn-toggle">展開</a></td>
+                </tr>
+                <tr class="match-detail" id="match-<%= match.match_id %>" style="display: none;">
+                    <td colspan="4">
+                        <table border="1" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>球員名稱</th>
+                                    <th>進攻</th>
+                                    <th>防守</th>
+                                    <th>接發</th>
+                                    <th>發球</th>
+                                    <th>舉球</th>
+                                    <th>攔網</th>
+                                </tr>
+                            </thead>
+                            <tbody class="player-stats" data-match-id="<%= match.match_id %>">
+                                <!-- 動態載入數據 -->
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <% }); %>
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $('.match-row').click(function () {
+                let matchId = $(this).data('match-id');
+                let detailRow = $('#match-' + matchId);
+                let statsBody = $('.player-stats[data-match-id="' + matchId + '"]');
+                let toggleBtn = $(this).find('.btn-toggle');
+
+                if (detailRow.is(':visible')) {
+                    detailRow.hide();
+                    statsBody.empty(); // 清空數據
+                    toggleBtn.text('展開');
+                } else {
+                    detailRow.show();
+                    toggleBtn.text('收起');
+
+                    // 發送 AJAX 請求獲取數據
+                    $.getJSON(`/matchHistory/getMatchStats/${matchId}`, function (data) {
+                        statsBody.empty();
+
+                        data.forEach(player => {
+                            statsBody.append(`
+                                <tr class="player-row">
+                                    <td>${player.player_name}</td>
+                                    <td>${player.attack_success} / ${player.attack_effective} / ${player.attack_ineffective} / ${player.attack_error}</td>
+                                    <td>${player.defense_success} / ${player.defense_effective} / ${player.defense_ineffective} / ${player.defense_error}</td>
+                                    <td>${player.receive_success} / ${player.receive_effective} / ${player.receive_ineffective} / ${player.receive_error}</td>
+                                    <td>${player.serve_success} / ${player.serve_effective} / ${player.serve_ineffective} / ${player.serve_error}</td>
+                                    <td>${player.set_success} / ${player.set_effective} / ${player.set_ineffective} / ${player.set_error}</td>
+                                    <td>${player.block_success} / ${player.block_effective} / ${player.block_ineffective} / ${player.block_error}</td>
+                                </tr>
+                            `);
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -16,7 +16,7 @@
 
 /* 圖片設定，保持比例且不裁切 */
 .team-img {
-  width: 100%;
+  width: 30%;
   height: auto; /* 高度根據寬度調整 */
   object-fit: contain; /* 保持比例，讓圖片自動適應容器 */
   display: block;
