@@ -1,6 +1,8 @@
 <main class="container mt-4">
     <h2 class="text-center mb-4">隊伍管理</h2>
 
+    <div id="manager-data" data-is-manager="<%= isManager || 'N' %>"></div>
+
     <!-- 新增成員按鈕 -->
     <div class="d-flex justify-content-end mb-3">
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMemberModal">新增成員</button>
@@ -106,27 +108,33 @@
 <!-- JavaScript -->
 <script>
     document.getElementById("addPlayerForm").addEventListener("submit", function (event) {
-        event.preventDefault();
+        let isManager = document.getElementById('manager-data').dataset.isManager === "Y";
+        if (isManager) {
+            event.preventDefault();
 
-        const playerName = document.getElementById("playerName").value;
-        const playerRole = document.getElementById("playerRole").value;
-        const playerNumber = document.getElementById("playerNumber").value;
+            const playerName = document.getElementById("playerName").value;
+            const playerRole = document.getElementById("playerRole").value;
+            const playerNumber = document.getElementById("playerNumber").value;
 
-        fetch("/manager/addPlayer", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                player_name: playerName,
-                role: playerRole,
-                number: playerNumber
+            fetch("/manager/addPlayer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    player_name: playerName,
+                    role: playerRole,
+                    number: playerNumber
+                })
             })
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                location.reload();
-            })
-            .catch(error => console.error("Error:", error));
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch(error => console.error("Error:", error));
+        } else {
+            alert("該帳號無此權限");
+        }
+
     });
 
     function viewPlayer(name, role, number) {
@@ -150,26 +158,34 @@
     }
 
     document.getElementById("startMatchBtn").addEventListener("click", function () {
-        fetch("/manager/players/list")
-            .then(response => response.json())
-            .then(data => {
-                const playersList = document.getElementById("playersList");
-                playersList.innerHTML = "";
-                data.players.forEach(player => {
-                    const checkbox = document.createElement("div");
-                    checkbox.classList.add("form-check");
-                    checkbox.innerHTML = `
+        //判斷該帳號是否有球隊管理者權限
+        let isManager = document.getElementById('manager-data').dataset.isManager === "Y";
+        if (isManager) {
+            fetch("/manager/players/list")
+                .then(response => response.json())
+                .then(data => {
+                    const playersList = document.getElementById("playersList");
+                    playersList.innerHTML = "";
+                    data.players.forEach(player => {
+                        const checkbox = document.createElement("div");
+                        checkbox.classList.add("form-check");
+                        checkbox.innerHTML = `
                         <input class="form-check-input" type="checkbox" name="selectedPlayers" value="${player.player_id}" id="player_${player.player_id}">
                         <label class="form-check-label" for="player_${player.player_id}">
                             ${player.player_name} - ${player.role} (#${player.number})
                         </label>
                     `;
-                    playersList.appendChild(checkbox);
-                });
+                        playersList.appendChild(checkbox);
+                    });
 
-                new bootstrap.Modal(document.getElementById("selectPlayersModal")).show();
-            })
-            .catch(error => console.error("Error fetching players:", error));
+                    new bootstrap.Modal(document.getElementById("selectPlayersModal")).show();
+
+                })
+                .catch(error => console.error("Error fetching players:", error));
+        } else {
+            alert("該帳號無此權限");
+        }
+
     });
 
     document.getElementById("selectPlayersForm").addEventListener("submit", function (event) {

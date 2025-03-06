@@ -32,13 +32,26 @@ router.post('/getUser', async function (req, res, next) {
       console.log("Incorrect password");
       return res.status(401).json({ error: 'Incorrect password' });
     }
-
+    var user_slice_name = user.user_name;
     // 登入成功，儲存使用者資訊到 session
-    req.session.user = {
-      user_name: user.user_name,
-      team: user.team,
-      email: user.email
-    };
+    // 判斷登入者權限
+    if (user_slice_name.substring(user_slice_name.length - 2) === "MB") {
+      req.session.user = {
+        user_name: user.user_name.slice(0, -2), //把MB去掉存session，後面才能正常抓隊伍相關資料
+        team: user.team,
+        email: user.email,
+        isManager: "N"
+      };
+    } else {
+      req.session.user = {
+        user_name: user.user_name,
+        team: user.team,
+        email: user.email,
+        isManager: "Y"
+      };
+    }
+
+
 
     console.log("Login successful, session stored:", req.session.user);
     res.json({ message: 'Login successful', user: req.session.user });

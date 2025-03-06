@@ -25,9 +25,23 @@ const addUser = (user_name, email, password_hash, team) => {
     );
 };
 
+// 取得不包含 "MB" 的隊伍名稱
+const getTeams = async () => {
+    try {
+        const query = "SELECT user_name FROM users WHERE user_name NOT LIKE '%MB'";
+        const { rows } = await pool.query(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching teams:", error);
+        throw error;
+    }
+};
+
+
 // 匯出函式
 module.exports = {
     getAllUsers,
     getUserByUserName,
-    addUser
+    addUser,
+    getTeams
 };

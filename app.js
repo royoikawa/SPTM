@@ -10,6 +10,7 @@ var aboutRouter = require('./routes/about');
 var managerRouter = require('./routes/manager');
 var matchRouter = require('./routes/match');
 var matchHistoryRouter = require('./routes/matchHistory');
+var pointRouter = require('./routes/point');
 const session = require('express-session');
 
 
@@ -41,6 +42,7 @@ app.use('/users', usersRouter);
 app.use('/manager', managerRouter)
 app.use('/match',matchRouter)
 app.use('/matchHistory',matchHistoryRouter)
+app.use('/point',pointRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
