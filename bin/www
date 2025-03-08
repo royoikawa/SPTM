@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('sptm:server');
 var http = require('http');
+var cron = require('node-cron');
+var axios = require('axios');
 
 /**
  * Get port from environment and store in Express.
@@ -78,6 +80,23 @@ function onError(error) {
       throw error;
   }
 }
+
+
+/**
+ * 定時執行 /point/insert_points
+ * 每天凌晨 3:00 自動執行
+ */
+cron.schedule('0 3 * * *', async () => {
+  try {
+    console.log('Running scheduled task: calling /point/insert_points');
+    const response = await axios.get('http://localhost:3000/point/insert_points');
+    console.log('Insert Points API Response:', response.data);
+  } catch (error) {
+    console.error('Error executing /point/insert_points:', error.message);
+  }
+}, {
+  timezone: "Asia/Taipei" // 設定台灣時區，確保時間正確
+});
 
 /**
  * Event listener for HTTP server "listening" event.

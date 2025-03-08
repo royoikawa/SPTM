@@ -38,11 +38,64 @@ const getStatsByCategory = async (category) => {
     }
 };
 
+async function insertPlayerStats(stat) {
+    const query = `
+        INSERT INTO point (player_id, attack_point, defense_point, receive_point, set_point, block_point, serve_point, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 1)
+        ;
+    `;
+
+    const values = [
+        stat.player_id,
+        parseFloat(stat.attack_point),  // 將字串轉換為浮點數
+        parseFloat(stat.defense_point), // 將字串轉換為浮點數
+        parseFloat(stat.receive_point), // 將字串轉換為浮點數
+        parseFloat(stat.set_point),     // 將字串轉換為浮點數
+        parseFloat(stat.block_point),   // 將字串轉換為浮點數
+        parseFloat(stat.serve_point)    // 將字串轉換為浮點數
+    ];
+
+    try {
+        // 執行插入查詢
+        await pool.query(query, values);
+        console.log(`Player ${stat.player_id} stats inserted successfully`);
+    } catch (err) {
+        console.error(`Error inserting player ${stat.player_id} stats:`, err);
+        throw err;  // 若有錯誤，繼續拋出
+    }
+}
+
+async function updatePlayerStatus(playerId) {
+    const query = `UPDATE point SET status = 0 WHERE player_id = $1`;
+    try {
+        const result = await pool.query(query, [playerId]);
+        return result.rowCount; // 返回影響的行數
+    } catch (error) {
+        console.error(`Error updating player ${playerId} status:`, error);
+        throw error;
+    }
+};
+
+async function getActivePlayerStats(playerId) {
+    const query = `SELECT * FROM point WHERE player_id = $1 AND status = 1`;
+    try {
+        const result = await pool.query(query, [playerId]);
+        return result.rows; // 回傳查詢結果
+    } catch (error) {
+        console.error(`Error fetching stats for player ${playerId}:`, error);
+        throw error;
+    }
+}
+
 module.exports = {
     getAttackStats: () => getStatsByCategory('attack'),
     getDefenseStats: () => getStatsByCategory('defense'),
     getReceiveStats: () => getStatsByCategory('receive'),
     getSetStats: () => getStatsByCategory('set'),
     getBlockStats: () => getStatsByCategory('block'),
-    getServeStats: () => getStatsByCategory('serve')
+    getServeStats: () => getStatsByCategory('serve'),
+    insertPlayerStats,
+    updatePlayerStatus,
+    getActivePlayerStats
 };
+
