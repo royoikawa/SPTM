@@ -221,4 +221,8 @@
     document.getElementById("viewMatchesBtn").addEventListener("click", () => {
         window.location.href = "/matchHistory"; // 導向 matchHistory 頁面
     });
+
+    document.getElementById('viewStatsBtn').addEventListener('click', function () {
+        window.location.href = '/point/team-stats'; // 導向 API 取得數據並渲染頁面
+    });
 </script>

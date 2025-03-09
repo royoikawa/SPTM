@@ -102,4 +102,23 @@ router.get('/insert_points', async (req, res) => {
     }
 });
 
+router.get('/team-stats', async (req, res) => {
+    try {
+        const teamUserName = req.session.user.user_name; // 假設隊伍名稱存在 session 中
+        if (!teamUserName) {
+            return res.status(400).json({ error: 'Team username is required' });
+        }
+
+        let teamStats = await pointModel.getTeamActivePlayerStats(teamUserName);
+
+        // 依據 total_point 由大到小排序
+        teamStats.sort((a, b) => parseFloat(b.total_point) - parseFloat(a.total_point));
+
+        res.render('point', { teamStats }); // 直接渲染 point.ejs
+    } catch (error) {
+        console.error('Error fetching team stats:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

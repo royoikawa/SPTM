@@ -117,7 +117,6 @@
 
 <body>
     <h2>比賽歷史</h2>
-    <a href="/manager" class="btn-back">⬅返回管理頁面</a>
     <table border="1">
         <thead>
             <tr>
@@ -164,6 +163,12 @@
                 <% }); %>
         </tbody>
     </table>
+
+    <!-- 返回按鈕區塊 -->
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-outline-primary btn-lg mx-2">🏠 返回首頁</a>
+        <a href="/manager" class="btn btn-outline-dark btn-lg mx-2">⚙️ 返回管理頁面</a>
+    </div>
 
     <script>
         $(document).ready(function () {

@@ -87,6 +87,21 @@ async function getActivePlayerStats(playerId) {
     }
 }
 
+async function getTeamActivePlayerStats(teamUserName) {
+    const query = `
+        SELECT * FROM point pt
+        LEFT JOIN players pls ON pls.player_id = pt.player_id 
+        WHERE pt.status = 1 AND pls.team_user_name = $1
+    `;
+    try {
+        const result = await pool.query(query, [teamUserName]);
+        return result.rows; // 回傳符合條件的資料
+    } catch (error) {
+        console.error(`Error fetching active player stats for team ${teamUserName}:`, error);
+        throw error;
+    }
+}
+
 module.exports = {
     getAttackStats: () => getStatsByCategory('attack'),
     getDefenseStats: () => getStatsByCategory('defense'),
@@ -96,6 +111,7 @@ module.exports = {
     getServeStats: () => getStatsByCategory('serve'),
     insertPlayerStats,
     updatePlayerStatus,
-    getActivePlayerStats
+    getActivePlayerStats,
+    getTeamActivePlayerStats
 };
 
