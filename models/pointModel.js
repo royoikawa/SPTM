@@ -3,32 +3,54 @@ const pool = require('./db'); // 引入資料庫連線
 // 查詢不同類別的統計數據
 const getStatsByCategory = async (category) => {
     const query = `
-        SELECT 
-            stats.player_id,
-            SUM(stats.success) AS success_count,
-            SUM(stats.effective) AS effective_count,
-            SUM(stats.ineffective) AS ineffective_count,
-            SUM(stats.error) AS error_count,
-            COALESCE(
-                ROUND(
-                    (SUM(stats.success) * 1 +
-                     SUM(stats.effective) * 0.75 +
-                     SUM(stats.ineffective) * 0.25 +
-                     SUM(stats.error) * 0)
-                    /
-                    NULLIF(
-                        (SUM(stats.success) + SUM(stats.effective) + SUM(stats.ineffective) + SUM(stats.error)),
-                        0
-                    ),
-                    2
-                ),
-                0
-            ) AS efficiency
-        FROM ${category}_stats stats
-        LEFT JOIN players prs ON prs.player_id = stats.player_id
-        GROUP BY stats.player_id;
+        SELECT  
+    stats.player_id,  
+    SUM(stats.success) AS success_count,  
+    SUM(stats.effective) AS effective_count,  
+    SUM(stats.ineffective) AS ineffective_count,  
+    SUM(stats.error) AS error_count,  
+    SUM(stats.success) + SUM(stats.effective) + SUM(stats.ineffective) + SUM(stats.error) AS total_count,  
+    COALESCE(  
+        ROUND(  
+            (SUM(stats.success) * 1 +  
+             SUM(stats.effective) * 0.75 +  
+             SUM(stats.ineffective) * 0.25 +  
+             SUM(stats.error) * 0)  
+            /  
+            NULLIF(  
+                (SUM(stats.success) + SUM(stats.effective) + SUM(stats.ineffective) + SUM(stats.error)),  
+                0  
+            ),  
+            2  
+        ),  
+        0  
+    ) AS efficiency,  
+    -- 計算該球員參加過的比賽數量
+    COALESCE(  
+        (SELECT COUNT(DISTINCT m.match_id)  
+         FROM matches m  
+         WHERE EXISTS (  
+             SELECT 1 FROM attack_stats WHERE player_id = stats.player_id AND match_id = m.match_id  
+             UNION  
+             SELECT 1 FROM defense_stats WHERE player_id = stats.player_id AND match_id = m.match_id  
+             UNION  
+             SELECT 1 FROM receive_stats WHERE player_id = stats.player_id AND match_id = m.match_id  
+             UNION  
+             SELECT 1 FROM serve_stats WHERE player_id = stats.player_id AND match_id = m.match_id  
+             UNION  
+             SELECT 1 FROM set_stats WHERE player_id = stats.player_id AND match_id = m.match_id  
+             UNION  
+             SELECT 1 FROM block_stats WHERE player_id = stats.player_id AND match_id = m.match_id  
+         )  
+        ),  
+        0  
+    ) AS match_count  
+FROM ${category}_stats stats  
+LEFT JOIN players prs ON prs.player_id = stats.player_id  
+GROUP BY stats.player_id;
+
     `;
-    
+
     try {
         const result = await pool.query(query);
         return result.rows;
@@ -87,6 +109,7 @@ async function getActivePlayerStats(playerId) {
     }
 }
 
+//用隊伍名稱去搜尋得分
 async function getTeamActivePlayerStats(teamUserName) {
     const query = `
         SELECT * FROM point pt
@@ -102,6 +125,22 @@ async function getTeamActivePlayerStats(teamUserName) {
     }
 }
 
+//用球員id去搜尋得分
+async function getPointsbyPlayerId(id) {
+    const query = `
+        SELECT * FROM point pt
+        LEFT JOIN players pls ON pls.player_id = pt.player_id 
+        WHERE pt.status = 1 AND pls.player_id=$1
+    `;
+    try {
+        const result = await pool.query(query, [id]);
+        return result.rows; // 回傳符合條件的資料
+    } catch (error) {
+        console.error(`Error fetching active player stats for player ${id}:`, error);
+        throw error;
+    }
+}
+
 module.exports = {
     getAttackStats: () => getStatsByCategory('attack'),
     getDefenseStats: () => getStatsByCategory('defense'),
@@ -112,6 +151,7 @@ module.exports = {
     insertPlayerStats,
     updatePlayerStatus,
     getActivePlayerStats,
-    getTeamActivePlayerStats
+    getTeamActivePlayerStats,
+    getPointsbyPlayerId
 };
 

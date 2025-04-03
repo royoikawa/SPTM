@@ -3,12 +3,10 @@
 
     <div id="manager-data" data-is-manager="<%= isManager || 'N' %>"></div>
 
-    <!-- 新增成員按鈕 -->
     <div class="d-flex justify-content-end mb-3">
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMemberModal">新增成員</button>
     </div>
 
-    <!-- 人員列表 -->
     <table class="table table-striped text-center">
         <thead class="table-dark">
             <tr>
@@ -21,8 +19,9 @@
         <tbody>
             <% if (players.length> 0) { %>
                 <% players.forEach((player)=> { %>
-                    <tr>
-                        <td>
+                    <tr class="player-row" data-name="<%= player.player_name %>" data-role="<%= player.role %>"
+                        data-number="<%= player.number %>" data-id="<%= player.player_id %>">
+                        <td class="text-primary fw-bold">
                             <%= player.player_name %>
                         </td>
                         <td>
@@ -32,8 +31,6 @@
                             <%= player.number %>
                         </td>
                         <td>
-                            <button class="btn btn-primary btn-sm"
-                                onclick="viewPlayer('<%= player.player_name %>', '<%= player.role %>', '<%= player.number %>')">檢視</button>
                             <button class="btn btn-warning btn-sm"
                                 onclick="editPlayer('<%= player.player_id %>')">修改</button>
                             <button class="btn btn-danger btn-sm"
@@ -49,64 +46,206 @@
         </tbody>
     </table>
 
-    <!-- 操作按鈕區域 -->
     <div class="d-flex justify-content-center gap-3 mt-4">
-        <button class="btn btn-primary btn-lg" id="startMatchBtn">比賽開始</button>
-        <button class="btn btn-primary btn-lg text-white" id="viewStatsBtn">數據檢視</button>
-        <button class="btn btn-primary btn-lg text-white" id="viewMatchesBtn">對局歷史</button>
+        <button class="btn btn-primary btn-lg btn-responsive" id="startMatchBtn">
+            <span>比賽</span><span>開始</span>
+        </button>
+        <button class="btn btn-primary btn-lg btn-responsive text-white" id="viewStatsBtn">
+            <span>數據</span><span>檢視</span>
+        </button>
+        <button class="btn btn-primary btn-lg btn-responsive text-white" id="viewMatchesBtn">
+            <span>對局</span><span>歷史</span>
+        </button>
     </div>
+
+    <!-- 新增隊員 Modal -->
+    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMemberModalLabel">新增球員</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPlayerForm">
+                        <div class="mb-3">
+                            <label for="playerName" class="form-label">姓名</label>
+                            <input type="text" class="form-control" id="playerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="playerRole" class="form-label">角色</label>
+                            <input type="text" class="form-control" id="playerRole" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="playerNumber" class="form-label">背號</label>
+                            <input type="number" class="form-control" id="playerNumber" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">新增</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 選擇比賽球員 Modal -->
+    <div class="modal fade" id="selectPlayersModal" tabindex="-1" aria-labelledby="selectPlayersModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectPlayersModalLabel">選擇上場球員</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="selectPlayersForm">
+                        <div id="playersList"></div>
+                        <button type="submit" class="btn btn-primary mt-3">開始比賽</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 這是彈出視窗的 HTML (Modal) -->
+    <div class="modal fade" id="playerStatsModal" tabindex="-1" aria-labelledby="playerStatsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="playerStatsModalLabel">各項數值</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="playerRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
 
-<!-- 新增隊員 Modal -->
-<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addMemberModalLabel">新增球員</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addPlayerForm">
-                    <div class="mb-3">
-                        <label for="playerName" class="form-label">姓名</label>
-                        <input type="text" class="form-control" id="playerName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="playerRole" class="form-label">角色</label>
-                        <input type="text" class="form-control" id="playerRole" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="playerNumber" class="form-label">背號</label>
-                        <input type="number" class="form-control" id="playerNumber" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">新增</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<style>
+    .player-row {
+        cursor: pointer;
+    }
 
-<!-- 選擇比賽球員 Modal -->
-<div class="modal fade" id="selectPlayersModal" tabindex="-1" aria-labelledby="selectPlayersModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="selectPlayersModalLabel">選擇上場球員</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="selectPlayersForm">
-                    <div id="playersList"></div>
-                    <button type="submit" class="btn btn-primary mt-3">開始比賽</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+    .btn-responsive {
+        white-space: nowrap;
+        /* 防止自動換行 */
+        padding: 10px 15px;
+        /* 增加按鈕內距 */
+        text-align: center;
+    }
 
-<!-- JavaScript -->
+    @media (max-width: 576px) {
+
+        /* 針對手機 */
+        .btn-responsive {
+            display: inline-block;
+            width: 90px;
+            /* 控制每個按鈕寬度 */
+            text-align: center;
+        }
+
+        /* 讓字每兩個字換行 */
+        .btn-responsive span {
+            display: block;
+            line-height: 1.2;
+        }
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    document.querySelectorAll('.player-row td.text-primary').forEach(nameCell => {
+        nameCell.addEventListener('click', async function (event) {
+            event.stopPropagation(); // 防止事件冒泡
+            let row = this.closest('.player-row');
+            let playerId = row.dataset.id;
+
+            try {
+                const response = await fetch(`/point/points/${playerId}`);
+                if (!response.ok) throw new Error('Failed to fetch data');
+
+                const playerData = await response.json();
+                if(playerData[0]==null){
+                    alert('該球員尚無數據');
+                }
+                else{
+                    showPlayerStats(playerData[0]);
+                }
+                
+                
+            } catch (error) {
+                console.error('Error fetching player stats:', error);
+            }
+        });
+    });
+
+    function showPlayerStats(player) {
+        const ctx = document.getElementById('playerRadarChart').getContext('2d');
+        // 先清除舊圖表，避免舊圖表閃現
+        if (window.radarChart) {
+            window.radarChart.destroy();
+        }
+        // 顯示 modal
+        new bootstrap.Modal(document.getElementById('playerStatsModal')).show();
+
+        // 在 Modal 顯示後，再初始化圖表
+        setTimeout(() => {
+
+            window.radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['攻擊', '防守', '接球', '舉球', '攔網', '發球'],
+                    datasets: [{
+                        label: player.player_name,
+                        data: [
+                            0, 0, 0, 0, 0, 0 // 初始數據為 0
+                        ],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            suggestedMin: 0,
+                            suggestedMax: 1
+                        }
+                    },
+                    animation: {
+                        duration: 1500,  // 設定動畫時間
+                        easing: 'easeOutBounce',  // 使用彈性結束效果
+                        onComplete: function () {
+                            console.log('動畫完成');
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',  // 將圖例置右
+                            labels: {
+                                boxWidth: 20,  // 自定義圖例框的寬度
+                                padding: 15     // 自定義圖例間隔
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 在初始化後更新數據
+            window.radarChart.data.datasets[0].data = [
+                player.attack_point,
+                player.defense_point,
+                player.receive_point,
+                player.set_point,
+                player.block_point,
+                player.serve_point
+            ];
+            window.radarChart.update(); // 更新圖表，觸發動畫
+        }, 300);  // 延遲 300ms 保證 modal 完全顯示後再繪製圖表
+    }
+
     document.getElementById("addPlayerForm").addEventListener("submit", function (event) {
         let isManager = document.getElementById('manager-data').dataset.isManager === "Y";
         if (isManager) {
@@ -225,4 +364,5 @@
     document.getElementById('viewStatsBtn').addEventListener('click', function () {
         window.location.href = '/point/team-stats'; // 導向 API 取得數據並渲染頁面
     });
+
 </script>

@@ -69,7 +69,7 @@ router.get('/logout', function (req, res) {
       return res.status(500).json({ error: 'Logout failed' });
     }
     console.log("Logout successful");
-    res.render('index');
+    res.redirect('/');
   });
 });
 

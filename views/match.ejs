@@ -232,7 +232,10 @@
                 body: JSON.stringify(matchData)
             })
                 .then(response => response.json())
-                .then(data => alert(data.message))
+                .then(data => {
+                    alert(data.message);  // 顯示成功訊息
+                    window.location.href = "/manager";  // 導向 /manager 頁面
+                })
                 .catch(error => console.error("Error:", error));
         });
     </script>

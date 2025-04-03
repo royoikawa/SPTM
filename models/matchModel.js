@@ -2,8 +2,9 @@ const pool = require('./db'); // 引入資料庫連線
 
 // 生成 match_id: 日期 (YYYYMMDD) + 隨機英文字母 (A-Z) + 局數
 function generateMatchId(date, setNumber) {
-    const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-    return `${date.replace(/-/g, '')}${randomLetter}${setNumber}`;
+    const randomLetter1 = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+    const randomLetter2 = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+    return `${date.replace(/-/g, '')}${randomLetter1}${randomLetter2}${setNumber}`;
 }
 
 // 插入比賽資料
@@ -143,7 +144,42 @@ async function getMatchesByTeam(teamUserName) {
     }
 }
 
+//計算球員一共打過幾局比賽
+async function getMatchCount(player_id) {
+    const query = `
+    SELECT 
+    count(m.match_id)
+FROM matches m
+JOIN players p ON p.player_id IN (
+    SELECT player_id FROM attack_stats WHERE match_id = m.match_id
+    UNION
+    SELECT player_id FROM defense_stats WHERE match_id = m.match_id
+    UNION
+    SELECT player_id FROM receive_stats WHERE match_id = m.match_id
+    UNION
+    SELECT player_id FROM serve_stats WHERE match_id = m.match_id
+    UNION
+    SELECT player_id FROM set_stats WHERE match_id = m.match_id
+    UNION
+    SELECT player_id FROM block_stats WHERE match_id = m.match_id
+)
+LEFT JOIN attack_stats a ON m.match_id = a.match_id AND p.player_id = a.player_id
+LEFT JOIN defense_stats d ON m.match_id = d.match_id AND p.player_id = d.player_id
+LEFT JOIN receive_stats r ON m.match_id = r.match_id AND p.player_id = r.player_id
+LEFT JOIN serve_stats s ON m.match_id = s.match_id AND p.player_id = s.player_id
+LEFT JOIN set_stats set_s ON m.match_id = set_s.match_id AND p.player_id = set_s.player_id
+LEFT JOIN block_stats b ON m.match_id = b.match_id AND p.player_id = b.player_id
+WHERE p.player_id = $1;
+    `;
 
+    try {
+        const { rows } = await pool.query(query, [player_id]);
+        return rows; // 回傳場次數量
+    } catch (error) {
+        console.error("Error getting match count:", error);
+        throw error;
+    }
+}
 
 
 module.exports = {
@@ -155,5 +191,6 @@ module.exports = {
     insertBlockStats,
     insertDefenseStats,
     getMatchStats,
-    getMatchesByTeam
+    getMatchesByTeam,
+    getMatchCount
 };

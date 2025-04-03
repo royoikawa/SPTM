@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pointModel = require('../models/pointModel');
+const matchModel = require('../models/matchModel');
 
 // 獲取球員統計數據的函式
 const fetchPlayerStats = async () => {
@@ -20,15 +21,18 @@ const fetchPlayerStats = async () => {
             pointModel.getBlockStats(),
             pointModel.getServeStats()
         ]);
-
         const playerStatsMap = new Map();
 
         const mergeStats = (stats, key) => {
-            stats.forEach(({ player_id, efficiency }) => {
+            stats.forEach(({ player_id, efficiency, total_count, match_count }) => {
                 if (!playerStatsMap.has(player_id)) {
                     playerStatsMap.set(player_id, { player_id });
                 }
-                playerStatsMap.get(player_id)[key] = efficiency;
+        
+                // 判斷是否要設為 "NIIC"
+                const pointValue = (match_count * 3 >= total_count) ? "0" : efficiency;
+        
+                playerStatsMap.get(player_id)[key] = pointValue;
             });
         };
 
@@ -118,6 +122,21 @@ router.get('/team-stats', async (req, res) => {
     } catch (error) {
         console.error('Error fetching team stats:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.get('/points/:id', async (req, res) => {
+    const playerId = req.params.id;
+    
+    if (!playerId) {
+        return res.status(400).json({ error: 'Player ID is required' });
+    }
+
+    try {
+        const points = await pointModel.getPointsbyPlayerId(playerId);
+        res.json(points);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
